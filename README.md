@@ -51,9 +51,6 @@
 - Capstone Project — โมเดลจากปัญหาจริงขององค์กร
 - **Workshop 6A:** Debugging Challenge (3 กรณี)
 
-> **หมายเหตุสำหรับวิทยากร:** ไฟล์เฉลย (`*_solution.mzn`) ไม่ได้รวมใน repository นี้  
-> เก็บไว้ใน folder ส่วนตัวและแจกจ่ายให้ผู้เรียนหลังทำ workshop แต่ละชุดเสร็จแล้ว
-
 ---
 
 ## Global Constraints อ้างอิงเร็ว
