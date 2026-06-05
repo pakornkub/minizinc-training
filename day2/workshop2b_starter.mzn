@@ -30,9 +30,7 @@ array[PRODUCTS, LINES] of var 0..1000: produce;
 
 % --- Constraints ---
 % TODO 1: แต่ละสินค้าต้องผลิตรวมให้ครบ demand
-constraint forall(p in PRODUCTS)(
-  sum(l in LINES)(produce[p,l]) = demand[p]
-);
+% constraint ...;
 
 % TODO 2: ถ้าไลน์ไม่ได้รับอนุญาต ห้ามใช้
 % constraint forall(p in PRODUCTS, l in LINES)(
