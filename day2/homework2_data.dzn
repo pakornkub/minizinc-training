@@ -1,0 +1,21 @@
+%% Data: โรงงานผลิต 3 สินค้า ใช้วัตถุดิบ 4 ชนิด
+
+PRODUCTS  = { Chair, Table, Shelf };
+MATERIALS = { Steel, Wood, Plastic, Paint };
+
+produce = [200, 80, 150];   % แผนผลิต Chair=200, Table=80, Shelf=150 ชิ้น
+
+%% need[product, material] = หน่วยวัตถุดิบต่อสินค้า 1 ชิ้น
+need = [| Steel: Wood: Plastic: Paint:
+        | Chair:     2,    3,      1,     1
+        | Table:     4,    8,      0,     2
+        | Shelf:     1,    5,      2,     1 |];
+
+%% ราคา (บาท/หน่วย)
+price_a = [120, 80, 45, 30];   % Supplier A
+price_b = [110, 90, 40, 35];   % Supplier B (Steel ถูกกว่า, Wood แพงกว่า)
+
+min_order_a = 50000;   % สั่ง A ต้องรวม >= 50,000 บาท
+min_order_b = 30000;   % สั่ง B ต้องรวม >= 30,000 บาท
+
+storage_cap = [2000, 3000, 1500, 800];  % ความจุคลังแต่ละวัตถุดิบ

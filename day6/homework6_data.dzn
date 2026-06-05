@@ -1,0 +1,39 @@
+%% Data: 4 วัตถุดิบ, 5 supplier
+
+n_materials  = 4;
+n_suppliers  = 5;
+max_lead_time = 14;   % วัน
+max_suppliers = 3;    % ทำสัญญาได้ไม่เกิน 3 ราย
+
+required    = [500, 300, 800, 200];   % ปริมาณที่ต้องการ
+min_quality = [  7,   6,   8,   7];   % คุณภาพขั้นต่ำ
+
+%% unit_price[supplier, material]  (0 = ไม่มีวัตถุดิบนั้น)
+unit_price = array2d(1..5, 1..4, [
+%%  M1   M2   M3   M4
+    120,  85,   0, 200,   % S1
+    110,   0, 145, 190,   % S2
+      0,  90, 130,   0,   % S3
+    130,  80, 150, 210,   % S4
+    115,  88, 140,   0    % S5
+]);
+
+%% max_supply[supplier, material]
+max_supply = array2d(1..5, 1..4, [
+    600, 400,   0, 300,
+    500,   0, 900, 250,
+      0, 350, 800,   0,
+    700, 500, 600, 400,
+    400, 300, 700,   0
+]);
+
+%% quality[supplier, material]  (0 = ไม่มี)
+quality = array2d(1..5, 1..4, [
+    8, 7, 0, 9,
+    7, 0, 8, 8,
+    0, 8, 9, 0,
+    6, 7, 7, 7,
+    9, 8, 8, 0
+]);
+
+lead_time = [10, 7, 14, 12, 8];   % วัน ต่อ supplier
