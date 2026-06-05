@@ -1,0 +1,15 @@
+%% Data file 2: โรงงาน B — สินค้า 4 ชนิด, ทรัพยากร 3 อย่าง
+%% โมเดลเดิมใช้ได้เลย! เพียงแค่เปลี่ยน data file
+%% รันด้วย: minizinc 03_production_generic.mzn 03_factory_data2.dzn
+
+PRODUCTS  = { Alpha, Beta, Gamma, Delta };
+RESOURCES = { Labor, Material, Machine };
+
+profit   = [600, 900, 750, 1100];
+capacity = [200, 250, 160];
+
+% consumption[product, resource]
+consumption = [| 4, 3, 2     % Alpha
+               | 6, 2, 3     % Beta
+               | 3, 5, 4     % Gamma
+               | 7, 4, 3 |]; % Delta

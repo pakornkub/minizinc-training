@@ -1,0 +1,13 @@
+%% Data file 1 สำหรับ Workshop 2A — โรงงาน 3 เครื่อง 4 สินค้า
+
+PRODUCTS  = { Bolt, Nut, Bracket, Shaft };
+RESOURCES = { Machine1, Machine2, Machine3 };
+
+profit   = [200, 150, 500, 400];   % กำไร (บาท/หน่วย)
+capacity = [80, 60, 100];          % ชั่วโมง/วัน
+
+% consumption[product, resource] = ชั่วโมงที่ใช้บนแต่ละเครื่อง
+consumption = [| 2, 0, 1     % Bolt
+               | 1, 2, 0     % Nut
+               | 3, 2, 4     % Bracket
+               | 2, 3, 3 |]; % Shaft

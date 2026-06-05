@@ -1,0 +1,8 @@
+%% Data: 6 พนักงาน, 7 วัน
+EMPLOYEE = Emp(1..6);
+DAY      = D(1..7);
+
+req_morning = [3, 3, 3, 3, 3, 2, 2];
+req_evening = [2, 2, 2, 2, 2, 2, 2];
+req_night   = [1, 1, 1, 1, 1, 1, 1];
+max_night_per_period = 3;

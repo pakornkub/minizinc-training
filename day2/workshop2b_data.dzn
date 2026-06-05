@@ -1,0 +1,22 @@
+%% Data file สำหรับ Workshop 2B
+
+PRODUCTS = { Gear, Axle, Frame, Spring, Plate };
+LINES    = { Line1, Line2, Line3 };
+
+demand = [50, 30, 40, 60, 20];   % หน่วยที่ต้องผลิต/วัน
+
+% ต้นทุน (บาท/หน่วย) — ถ้าไลน์นั้นไม่อนุญาตใส่ค่าสูงๆ ก็ได้ (จะถูก block โดย constraint)
+unit_cost = [| 10,  15,  12    % Gear  (Line1 ถูกสุด)
+             | 20,   8,  25    % Axle  (Line2 ถูกสุด)
+             |  5,  18,   9    % Frame (Line1 ถูกสุด)
+             | 30,  12,  10    % Spring(Line3 ถูกสุด)
+             | 15,  15,  20 |];% Plate (Line1,2 เท่ากัน)
+
+% ไลน์ที่แต่ละสินค้าใช้ได้
+allowed = [{ Line1, Line2 },   % Gear ใช้ได้ Line1, Line2
+           { Line2 },          % Axle ใช้ได้ Line2 เท่านั้น
+           { Line1, Line3 },   % Frame ใช้ได้ Line1, Line3
+           { Line2, Line3 },   % Spring ใช้ได้ Line2, Line3
+           { Line1, Line2 }];  % Plate ใช้ได้ Line1, Line2
+
+line_capacity = [80, 70, 60];  % ความจุสูงสุด (หน่วย/วัน)

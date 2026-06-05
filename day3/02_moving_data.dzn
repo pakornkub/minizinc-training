@@ -1,0 +1,12 @@
+%% Data: การขนย้ายเฟอร์นิเจอร์ (จาก MiniZinc tutorial)
+%% รันด้วย: minizinc 02_cumulative.mzn 02_moving_data.dzn
+
+OBJECTS = { Piano, Fridge, DoubleBed, SingleBed, Wardrobe, Chair1, Chair2, Table };
+
+duration          = [60, 45, 30, 30, 20, 15, 15, 15];
+handlers_needed   = [ 3,  2,  2,  1,  2,  1,  1,  2];
+trolleys_needed   = [ 2,  1,  2,  2,  2,  0,  0,  1];
+
+available_time     = 180;
+available_handlers = 4;
+available_trolleys = 3;

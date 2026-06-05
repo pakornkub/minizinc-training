@@ -1,0 +1,22 @@
+# Solution files (kept locally, not published)
+*_solution.mzn
+
+# macOS
+.DS_Store
+._*
+~$*
+
+# LibreOffice temp files
+.~lock.*
+
+# MiniZinc output
+*.ozn
+*.fzn
+*.dzn.bak
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/

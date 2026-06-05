@@ -1,0 +1,16 @@
+%% Data file ทางเลือก — โรงงานอื่นที่มีทรัพยากรต่างกัน
+%% ลองรัน: minizinc workshop1b_param.mzn workshop1b_data2.dzn
+
+labor_hours  = 200;   % มีแรงงานมากขึ้น
+raw_material = 100;   % แต่วัตถุดิบน้อยลง
+
+labor_a    = 4;
+material_a = 3;
+profit_a   = 1000;
+
+labor_b    = 6;
+material_b = 4;
+profit_b   = 1500;
+
+min_a = 0;
+min_b = 0;

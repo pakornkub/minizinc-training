@@ -1,0 +1,8 @@
+%% Data file สำหรับ 03_cakes_param.mzn
+%% รันด้วย: minizinc 03_cakes_param.mzn 03_pantry.dzn
+
+flour  = 4000;   % แป้ง 4 กิโลกรัม
+banana = 6;      % กล้วย 6 ลูก
+sugar  = 2000;   % น้ำตาล 2 กิโลกรัม
+butter = 500;    % เนย 500 กรัม
+cocoa  = 500;    % โกโก้ 500 กรัม

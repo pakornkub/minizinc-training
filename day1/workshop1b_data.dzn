@@ -1,0 +1,15 @@
+%% Data file สำหรับ workshop1b_param.mzn — โรงงานเดิม
+
+labor_hours  = 120;
+raw_material = 150;
+
+labor_a    = 3;    % A ใช้แรงงาน 3 ชม.
+material_a = 5;    % A ใช้วัตถุดิบ 5 กก.
+profit_a   = 800;  % กำไร 800 บาท
+
+labor_b    = 5;
+material_b = 2;
+profit_b   = 1200;
+
+min_a = 5;   % ผลิต A อย่างน้อย 5 หน่วย
+min_b = 3;   % ผลิต B อย่างน้อย 3 หน่วย
