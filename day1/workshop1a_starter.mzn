@@ -21,7 +21,7 @@ var 1..nc: v;
 var 1..nc: t;
 
 % TODO ขั้นตอน 3: เพิ่มตัวแปร act ตรงนี้
-% var 1..nc: act;
+% ...
 
 constraint wa != nt;
 constraint wa != sa;
@@ -34,8 +34,7 @@ constraint q  != nsw;
 constraint nsw != v;
 
 % TODO ขั้นตอน 3: เพิ่ม constraint สำหรับ act ตรงนี้
-% constraint act != nsw;
-% constraint act != v;
+% ...
 
 solve satisfy;
 % TODO ขั้นตอน 4: เปลี่ยนเป็น solve minimize ...

@@ -36,9 +36,8 @@ int: raw_material = 150;    % วัตถุดิบทั้งหมด (ก
 % วัตถุดิบ: ผลิต A แต่ละหน่วยใช้ 5 กก., B ใช้ 2 กก.
 % constraint ...;
 
-% ขั้นตอน 5: เพิ่ม minimum production (uncomment เมื่อถึงขั้นตอนนี้)
-% constraint a >= 5;
-% constraint b >= 3;
+% ขั้นตอน 5: เพิ่ม minimum production 
+% ...
 
 % --- TODO: กำหนด Solve ---
 % solve maximize ...;
