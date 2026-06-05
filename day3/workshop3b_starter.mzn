@@ -36,16 +36,10 @@ array[1..n_jobs, 1..n_tasks] of var 0..total: s;
 var 0..total: makespan;
 
 % TODO 1: Precedence — S1 ก่อน S2 ก่อน S3 ในทุก job
-% constraint forall(j in 1..n_jobs)(
-%   s[j,1] + dur[j,1] <= s[j,2] /\
-%   s[j,2] + dur[j,2] <= s[j,3] /\
-%   s[j,3] + dur[j,3] <= makespan
-% );
+% constraint ...
 
 % TODO 2: Disjunctive — แต่ละสถานีทำออร์เดอร์ได้ทีละ 1
-% constraint forall(t in 1..n_tasks)(
-%   disjunctive([s[j,t] | j in 1..n_jobs], [dur[j,t] | j in 1..n_jobs])
-% );
+% constraint ...
 
 % TODO 3: solve minimize makespan
 solve satisfy;

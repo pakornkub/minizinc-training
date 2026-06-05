@@ -35,13 +35,13 @@ array[1..n_tasks] of var 0..deadline: start;
 var 0..deadline: end_time;
 
 % TODO 1: cumulative — ทุกเวลา ช่างรวมต้องไม่เกิน total_workers
-% constraint cumulative(start, dur, workers, total_workers);
+% constraint ...
 
 % TODO 2: Precedence — งาน C (index 3) ต้องทำหลัง A (index 1) เสร็จ
-% constraint start[???] + dur[???] <= start[???];
+% constraint ...
 
 % TODO 3: ทุกงานต้องเสร็จก่อน end_time
-% constraint forall(i in 1..n_tasks)(start[i] + dur[i] <= end_time);
+% constraint ...
 
 % TODO 4: solve minimize end_time
 solve satisfy;

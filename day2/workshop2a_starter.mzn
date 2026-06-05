@@ -36,12 +36,12 @@ array[PRODUCTS] of var 0..max_produce: produce;
 % Hint: ใช้ forall(r in RESOURCES)( sum(...) <= ... )
 
 % constraint forall(r in RESOURCES)(
-%   ???
+%  ???
 % );
 
 % --- Solve ---
 % TODO: เพิ่ม solve item เพื่อ maximize กำไรรวม
-% solve maximize ...;
+% solve ...
 
 % --- Output ---
 output
