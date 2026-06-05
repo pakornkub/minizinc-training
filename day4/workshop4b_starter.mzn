@@ -41,20 +41,13 @@ int: req_E = 3;  % บ่าย
 int: req_N = 2;  % ดึก
 
 %% TODO 1: Demand — ทุกวันต้องมีพนักงานพอ
-% constraint forall(d in DAYS)(
-%   sum(e in EMP)(roster[e,d] = M) >= req_M /\
-%   sum(e in EMP)(roster[e,d] = E) >= req_E /\
-%   sum(e in EMP)(roster[e,d] = N) >= req_N
-% );
+% constraint ...
 
 %% TODO 2: หลังกะดึกต้องหยุด (ไม่ใช่วันสุดท้าย)
-% constraint forall(e in EMP, d in 1..n_days-1)(
-%   roster[e,d] = N -> roster[e,d+1] = O
-% );
+% constraint ...
 
 %% TODO 3: ทำงานไม่เกิน 6 วันติด
-%% hint: sum(d in d0..d0+6)(roster[e,d] != O) <= 6
-%% หรือใช้ regular constraint
+% constraint ...
 
 %% TODO 4: solve minimize total_nights
 var int: total_nights = sum(e in EMP, d in DAYS)(bool2int(roster[e,d] = N));

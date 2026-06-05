@@ -31,24 +31,13 @@ array[JOB, TASK] of var 0..total: start;
 var 0..total: makespan;
 
 %% TODO 1: เลือกเฉพาะเครื่องที่ทำ task นั้นได้
-% constraint forall(j in JOB, t in TASK)(
-%   dur[j, t, machine[j,t]] > 0
-% );
+% constraint ...
 
 %% TODO 2: Precedence (task ตามลำดับใน job เดียวกัน)
-% constraint forall(j in JOB)(
-%   forall(t in TASK where t < t_last)(
-%     start[j,t] + dur[j,t,machine[j,t]] <= start[j, enum_next(TASK,t)]
-%   ) /\ start[j,t_last] + dur[j,t_last,machine[j,t_last]] <= makespan
-% );
+% constraint ...
 
 %% TODO 3: No-overlap (สองงานที่ใช้เครื่องเดียวกันห้าม overlap)
-% constraint forall(t in TASK, m in MACHINE)(
-%   forall(j, k in JOB where j < k)(
-%     machine[j,t] = m /\ machine[k,t] = m ->
-%     (start[j,t]+dur[j,t,m] <= start[k,t] \/ start[k,t]+dur[k,t,m] <= start[j,t])
-%   )
-% );
+% constraint ...
 
 %% TODO 4: solve minimize makespan
 solve satisfy;

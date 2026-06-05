@@ -28,10 +28,10 @@ array[ITEMS] of var BINS: bin_of;
 array[BINS]  of var 0..1: used;
 
 %% TODO 1: bin_packing_capa
-% constraint bin_packing_capa(bin_capacity, bin_of, item_size);
+% constraint ...;
 
 %% TODO 2: Symmetry breaking
-% constraint forall(i in 1..n_items-1)(bin_of[i] <= bin_of[i+1] + 1);
+% constraint ...;
 
 %% กำหนดว่ากล่องถูกใช้หรือไม่
 constraint forall(b in BINS)(
@@ -44,8 +44,7 @@ var int: n_used = sum(b in BINS)(used[b]);
 solve satisfy;
 
 %% TODO 4 (ท้าทาย): สินค้าอันตราย ห้ามอยู่ตู้เดียวกัน
-% set of int: DANGER = {1, 3, 5};
-% constraint forall(i, j in DANGER where i < j)(bin_of[i] != bin_of[j]);
+% ...
 
 output [
   "=== Bin Packing ===\n",

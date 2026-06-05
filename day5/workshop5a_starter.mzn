@@ -34,17 +34,10 @@ array[ALL] of var ALL: next;
 array[CUST] of var 0..capacity: load;
 
 %% TODO 1: circuit constraint
-% constraint circuit(next);
+% constraint ...;
 
 %% TODO 2: Capacity — load ต่อ customer
-%% load[i] = demand[i] + load[next[i]] (ถ้า next ไม่ใช่ depot)
-%% load[depot] = 0
-% constraint forall(i in CUST)(
-%   load[i] = demand[i] +
-%   (if next[i] in DEPOT then 0 else load[next[i]] endif)
-% );
-% constraint forall(d in DEPOT)(... = 0);
-% constraint forall(i in CUST)(load[i] <= capacity);
+%% ...
 
 %% TODO 3: solve minimize ระยะทางรวม
 solve satisfy;
