@@ -13,9 +13,10 @@ array[PRODUCTS] of int: profit = [500, 700, 1200];
 
 % เวลาที่ใช้บนแต่ละเครื่อง (ชั่วโมง/หน่วย)
 array[PRODUCTS, MACHINES] of int: time_needed =
-  [| ChairA:  2, 1, 3
-   | ChairB:  1, 2, 2
-   | TableX:  3, 3, 5 |];
+  [| LaserCutter: Welder: Assembler:
+   | ChairA:      2,      1,       3
+   | ChairB:      1,      2,       2
+   | TableX:      3,      3,       5 |];
 
 % Capacity ของแต่ละเครื่อง (ชั่วโมง/วัน)
 array[MACHINES] of int: machine_cap = [16, 12, 20];
