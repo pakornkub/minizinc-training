@@ -6,11 +6,13 @@
 %% จุดเด่น: โมเดลเดิมใช้ได้กับข้อมูลโรงงานทุกแห่ง
 %%           เพิ่ม/ลดสินค้าและทรัพยากรได้โดยแก้แค่ data file
 
-% --- Enum Types (กำหนดใน data file) ---
-enum PRODUCTS;    % ชนิดสินค้า
-enum RESOURCES;   % ชนิดทรัพยากร
-
 % --- Parameters ---
+int: n_products;    % จำนวนชนิดสินค้า
+int: n_resources;   % จำนวนชนิดทรัพยากร
+
+set of int: PRODUCTS  = 1..n_products;
+set of int: RESOURCES = 1..n_resources;
+
 array[PRODUCTS]            of int: profit;       % กำไร/หน่วย
 array[RESOURCES]           of int: capacity;     % ทรัพยากรที่มี
 array[PRODUCTS, RESOURCES] of int: consumption;  % ทรัพยากรที่ใช้ต่อหน่วยสินค้า
@@ -36,8 +38,9 @@ solve maximize sum(p in PRODUCTS)(profit[p] * produce[p]);
 
 % --- Output ---
 output
-  [ show(p) ++ " = " ++ show(produce[p]) ++ " หน่วย\n" | p in PRODUCTS ] ++
+  [ "สินค้าที่ " ++ show(p) ++ " = " ++ show(produce[p]) ++ " หน่วย\n" | p in PRODUCTS ] ++
   [ "กำไรรวม = " ++ show(sum(p in PRODUCTS)(profit[p]*produce[p])) ++ " บาท\n" ] ++
   [ "--- การใช้ทรัพยากร ---\n" ] ++
-  [ show(r) ++ ": " ++ show(sum(p in PRODUCTS)(consumption[p,r]*produce[p]))
+  [ "ทรัพยากร " ++ show(r) ++ ": "
+    ++ show(sum(p in PRODUCTS)(consumption[p,r]*produce[p]))
     ++ "/" ++ show(capacity[r]) ++ "\n" | r in RESOURCES ];

@@ -1,8 +1,8 @@
 %% Data file 2 สำหรับ Workshop 2A — โรงงานที่ใหญ่กว่า (6 สินค้า)
 %% โมเดลเดิมไม่ต้องแก้อะไรเลย!
 
-PRODUCTS  = { P1, P2, P3, P4, P5, P6 };
-RESOURCES = { Machine1, Machine2, Machine3 };
+n_products  = 6;
+n_resources = 3;
 
 profit   = [300, 250, 600, 450, 350, 800];
 capacity = [100, 90, 120];

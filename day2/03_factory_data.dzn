@@ -1,12 +1,12 @@
 %% Data file 1: โรงงาน A — สินค้า 2 ชนิด, ทรัพยากร 3 อย่าง
 %% รันด้วย: minizinc 03_production_generic.mzn 03_factory_data.dzn
 
-PRODUCTS  = { ProductA, ProductB };
-RESOURCES = { Labor, Material, Energy };
+n_products  = 2;
+n_resources = 3;
 
-profit   = [800, 1200];          % กำไร: A=800, B=1200 บาท/หน่วย
-capacity = [120, 150, 80];       % Labor=120 ชม., Material=150 กก., Energy=80 kWh
+profit   = [800, 1200];          % กำไร: สินค้า1=800, สินค้า2=1200 บาท/หน่วย
+capacity = [120, 150, 80];       % ทรัพยากร1=120 ชม., ทรัพยากร2=150 กก., ทรัพยากร3=80 kWh
 
 % consumption[product, resource]
-consumption = [| 3, 5, 2     % ProductA: 3 ชม., 5 กก., 2 kWh
-               | 5, 2, 4 |]; % ProductB: 5 ชม., 2 กก., 4 kWh
+consumption = [| 3, 5, 2     % สินค้าที่ 1: 3 ชม., 5 กก., 2 kWh
+               | 5, 2, 4 |]; % สินค้าที่ 2: 5 ชม., 2 กก., 4 kWh
