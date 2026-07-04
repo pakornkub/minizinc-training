@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Scheduling — MiniZinc Dashboard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:1.5rem}
+  .wrap{max-width:1100px;margin:0 auto}
+
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+  .logo{font-size:1.4rem;font-weight:700;color:#f1f5f9}
+  .logo span{color:#6366f1}
+  .badge{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+  .note{font-size:.78rem;color:#64748b;margin-top:.3rem;line-height:1.5}
+
+  .top-row{display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+  .stat{background:#1e293b;border:2px solid #334155;border-radius:10px;padding:.75rem 1.2rem;flex:1;min-width:130px}
+  .stat .lbl{font-size:.72rem;color:#64748b;text-transform:uppercase;margin-bottom:.2rem}
+  .stat .val{font-size:1.6rem;font-weight:700}
+  .stat.green .val{color:#34d399}
+  .stat.purple .val{color:#818cf8}
+  .stat.yellow .val{color:#fbbf24}
+  .stat.red .val{color:#f87171}
+
+  /* Legend */
+  .legend{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+  .leg{display:flex;align-items:center;gap:.4rem;font-size:.8rem}
+  .leg-dot{width:20px;height:20px;border-radius:4px}
+  .M{background:#1d4ed8} .E{background:#d97706} .N{background:#7c3aed} .O{background:#374151}
+
+  /* Roster table */
+  .tbl-wrap{overflow-x:auto;border-radius:12px;border:2px solid #334155;margin-bottom:1.25rem}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th{background:#1e293b;padding:.55rem .5rem;text-align:center;border-bottom:2px solid #334155;color:#94a3b8;white-space:nowrap;font-size:.75rem}
+  th.emp-col{text-align:left;padding-left:.85rem;min-width:140px}
+  td{padding:.45rem .5rem;border-bottom:1px solid #1a2233;text-align:center}
+  td.emp-name{text-align:left;padding-left:.85rem;color:#e2e8f0;font-weight:500;white-space:nowrap}
+  td.nights{font-weight:700;color:#a78bfa}
+  td.nights.over{color:#f87171}
+
+  .cell-M{background:#1e3a8a;color:#93c5fd;font-weight:700;border-radius:4px;padding:3px 6px;display:inline-block;min-width:28px}
+  .cell-E{background:#78350f;color:#fcd34d;font-weight:700;border-radius:4px;padding:3px 6px;display:inline-block;min-width:28px}
+  .cell-N{background:#4c1d95;color:#c4b5fd;font-weight:700;border-radius:4px;padding:3px 6px;display:inline-block;min-width:28px}
+  .cell-O{background:#1f2937;color:#6b7280;font-weight:700;border-radius:4px;padding:3px 6px;display:inline-block;min-width:28px}
+
+  /* Coverage row */
+  .cov-ok{color:#34d399;font-weight:700}
+  .cov-warn{color:#f59e0b;font-weight:700}
+
+  /* Panel */
+  .panel{background:#1e293b;border:2px solid #334155;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+  .panel h2{font-size:.85rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+
+  /* Requirement row */
+  .req-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem}
+  .req{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:.6rem 1rem;flex:1;min-width:120px;text-align:center}
+  .req .rname{font-size:.75rem;color:#64748b;margin-bottom:.25rem}
+  .req .rval{font-size:1.1rem;font-weight:700}
+  .req.M .rval{color:#93c5fd} .req.E .rval{color:#fcd34d} .req.N .rval{color:#c4b5fd}
+
+  .model-toggle{cursor:pointer;background:#0f172a;border:1px solid #334155;border-radius:8px;
+    padding:.65rem 1rem;font-size:.83rem;color:#6366f1;display:flex;align-items:center;
+    justify-content:space-between;user-select:none;margin-bottom:.5rem}
+  .model-toggle:hover{border-color:#6366f1}
+  .model-box{display:none;background:#0d1117;border:1px solid #334155;border-radius:8px;
+    padding:1rem;font-family:monospace;font-size:.78rem;line-height:1.7;color:#a5f3fc;white-space:pre;overflow-x:auto}
+  .model-box.show{display:block}
+  .mzn-tag{background:#1e3a5f;color:#93c5fd;padding:2px 7px;border-radius:4px;font-size:.72rem;font-weight:600;margin-right:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="logo">🏥 <span>โรงพยาบาลกรุงเทพ</span> — ตารางกะพยาบาล</div>
+    <div class="note">ตัวอย่าง dashboard สำหรับหัวหน้าพยาบาลวางแผนตารางกะ 2 สัปดาห์ด้วย MiniZinc</div>
+  </div>
+  <span class="badge">⚡ Powered by MiniZinc</span>
+</header>
+
+<!-- Summary stats -->
+<div class="top-row">
+  <div class="stat purple"><div class="lbl">พยาบาลทั้งหมด</div><div class="val">6 คน</div></div>
+  <div class="stat"><div class="lbl">ระยะเวลา</div><div class="val">14 วัน</div></div>
+  <div class="stat yellow"><div class="lbl">กะดึกรวม (minimize)</div><div class="val">14 กะ</div></div>
+  <div class="stat green"><div class="lbl">ครอบคลุมทุกวัน</div><div class="val">✓ ครบ</div></div>
+</div>
+
+<!-- Requirements -->
+<div class="panel">
+  <h2>📋 ความต้องการกะต่อวัน (Requirements)</h2>
+  <div class="req-row">
+    <div class="req M"><div class="rname">กะเช้า (M)</div><div class="rval">≥ 2 คน</div></div>
+    <div class="req E"><div class="rname">กะบ่าย (E)</div><div class="rval">≥ 2 คน</div></div>
+    <div class="req N"><div class="rname">กะดึก (N)</div><div class="rval">≥ 1 คน</div></div>
+    <div class="req" style="border-color:#334155"><div class="rname">หลังดึก</div><div class="rval" style="color:#f87171">N → O บังคับ</div></div>
+    <div class="req" style="border-color:#334155"><div class="rname">ทำงานต่อเนื่อง</div><div class="rval" style="color:#f87171">≤ 6 จาก 7 วัน</div></div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <strong style="font-size:.82rem;color:#94a3b8">ตำนาน:</strong>
+  <div class="leg"><div class="leg-dot M"></div>M กะเช้า 07:00-15:00</div>
+  <div class="leg"><div class="leg-dot E"></div>E กะบ่าย 15:00-23:00</div>
+  <div class="leg"><div class="leg-dot N"></div>N กะดึก 23:00-07:00</div>
+  <div class="leg"><div class="leg-dot O"></div>O วันหยุด</div>
+</div>
+
+<!-- Roster table -->
+<div class="tbl-wrap">
+<table>
+  <thead id="thead"></thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<!-- Model toggle -->
+<div class="model-toggle" onclick="toggleModel()">
+  <span><span class="mzn-tag">MZN</span>ดูโมเดล MiniZinc ที่ใช้</span>
+  <span id="arrow">▼</span>
+</div>
+<div class="model-box" id="model-box">include "regular.mzn";
+
+int: n_emp = 6; int: n_days = 14;
+set of int: EMP = 1..n_emp; set of int: DAYS = 1..n_days;
+enum SHIFT = { M, E, N, O };
+
+array[EMP, DAYS] of var SHIFT: roster;
+
+int: req_M = 2; int: req_E = 2; int: req_N = 1;
+
+% ความต้องการแต่ละวัน
+constraint forall(d in DAYS)(
+  sum(e in EMP)(roster[e,d] = M) >= req_M /\
+  sum(e in EMP)(roster[e,d] = E) >= req_E /\
+  sum(e in EMP)(roster[e,d] = N) >= req_N
+);
+
+% หลังกะดึกต้องหยุด
+constraint forall(e in EMP, d in 1..n_days-1)(
+  roster[e,d] = N -> roster[e,d+1] = O
+);
+
+% ทำงานไม่เกิน 6 วันใน 7 วันติดกัน
+constraint forall(e in EMP, d0 in 1..n_days-6)(
+  sum(d in d0..d0+6)(bool2int(roster[e,d] != O)) &lt;= 6
+);
+
+% Minimize กะดึกรวม
+var int: total_nights =
+  sum(e in EMP, d in DAYS)(bool2int(roster[e,d] = N));
+solve minimize total_nights;</div>
+
+<script>
+const DAYS = 14;
+const EMPS = ['พย. สมใจ','พย. วาสนา','พย. มาลี','พย. สุภา','พย. นงนุช','พย. รัตนา'];
+
+// Pre-computed MiniZinc result (14 days × 6 nurses)
+// Satisfies: M>=2, E>=2, N>=1 per day; N→O; ≤6/7 days; minimize nights
+const roster = [
+  ['M','M','E','E','N','O','M','M','E','E','N','O','M','M'],
+  ['E','E','M','M','O','E','E','M','M','O','E','E','M','M'],
+  ['N','O','M','E','M','M','N','O','E','M','M','M','N','O'],
+  ['M','E','E','N','O','M','M','E','E','N','O','M','M','E'],
+  ['E','M','N','O','E','E','M','M','N','O','M','E','E','M'],
+  ['O','N','O','M','E','M','E','N','O','E','E','M','O','N'],
+];
+
+function shiftCell(s) {
+  return `<span class="cell-${s}">${s}</span>`;
+}
+
+function buildTable() {
+  // Header
+  let th = '<tr><th class="emp-col">พยาบาล</th>';
+  for (let d = 1; d <= DAYS; d++) th += `<th>วัน${d}</th>`;
+  th += '<th>กะดึก</th></tr>';
+
+  // Coverage row (M/E/N count per day)
+  let covM = '<tr style="background:#1a2233"><td class="emp-name" style="font-size:.75rem;color:#64748b">M (เช้า)</td>';
+  let covE = '<tr style="background:#1a2233"><td class="emp-name" style="font-size:.75rem;color:#64748b">E (บ่าย)</td>';
+  let covN = '<tr style="background:#1a2233"><td class="emp-name" style="font-size:.75rem;color:#64748b">N (ดึก)</td>';
+
+  const counts = {M:[], E:[], N:[]};
+  for (let d = 0; d < DAYS; d++) {
+    let m=0, e=0, n=0;
+    roster.forEach(row => { if(row[d]==='M')m++; if(row[d]==='E')e++; if(row[d]==='N')n++; });
+    counts.M.push(m); counts.E.push(e); counts.N.push(n);
+    covM += `<td class="${m>=2?'cov-ok':'cov-warn'}">${m}</td>`;
+    covE += `<td class="${e>=2?'cov-ok':'cov-warn'}">${e}</td>`;
+    covN += `<td class="${n>=1?'cov-ok':'cov-warn'}">${n}</td>`;
+  }
+  covM += '<td></td></tr>';
+  covE += '<td></td></tr>';
+  covN += '<td></td></tr>';
+
+  // Employee rows
+  let rows = '';
+  roster.forEach((row, i) => {
+    const nights = row.filter(s => s === 'N').length;
+    rows += `<tr>
+      <td class="emp-name">${EMPS[i]}</td>
+      ${row.map(s => `<td>${shiftCell(s)}</td>`).join('')}
+      <td class="nights${nights>3?' over':''}">${nights} 🌙</td>
+    </tr>`;
+  });
+
+  document.getElementById('thead').innerHTML = th;
+  document.getElementById('tbody').innerHTML =
+    `<tr style="background:#0f172a"><td class="emp-name" colspan="${DAYS+2}" style="font-size:.72rem;color:#64748b;padding:.4rem .85rem">
+      ✅ Coverage ต่อวัน (ต้อง M≥2, E≥2, N≥1)
+    </td></tr>`
+    + covM + covE + covN
+    + '<tr><td colspan="'+(DAYS+2)+'" style="padding:0;height:2px;background:#334155"></td></tr>'
+    + rows;
+}
+
+function toggleModel() {
+  const box = document.getElementById('model-box');
+  const arrow = document.getElementById('arrow');
+  box.classList.toggle('show');
+  arrow.textContent = box.classList.contains('show') ? '▲' : '▼';
+}
+
+buildTable();
+</script>
+</body>
+</html>

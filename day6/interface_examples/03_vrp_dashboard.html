@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Routing — MiniZinc Dashboard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:1.5rem}
+  .wrap{max-width:1200px;margin:0 auto}
+
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+  .logo{font-size:1.4rem;font-weight:700;color:#f1f5f9}
+  .logo span{color:#10b981}
+  .badge{background:#052e16;color:#34d399;border:1px solid #059669;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+  .note{font-size:.78rem;color:#64748b;margin-top:.3rem;line-height:1.5}
+
+  /* Stats row */
+  .top-row{display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap}
+  .stat{background:#1e293b;border:2px solid #334155;border-radius:10px;padding:.75rem 1.2rem;flex:1;min-width:120px}
+  .stat .lbl{font-size:.72rem;color:#64748b;text-transform:uppercase;margin-bottom:.2rem}
+  .stat .val{font-size:1.5rem;font-weight:700}
+  .stat.green .val{color:#34d399}
+  .stat.blue .val{color:#60a5fa}
+  .stat.yellow .val{color:#fbbf24}
+  .stat.purple .val{color:#a78bfa}
+
+  /* Main layout */
+  .main{display:grid;grid-template-columns:1fr 320px;gap:1.25rem}
+  @media(max-width:820px){.main{grid-template-columns:1fr}}
+
+  /* Map area */
+  .map-panel{background:#1e293b;border:2px solid #334155;border-radius:14px;padding:1rem;position:relative}
+  .map-panel h2{font-size:.85rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+  #map-svg{width:100%;height:420px;background:#0f172a;border-radius:10px;border:1px solid #334155}
+
+  /* Route list panel */
+  .side-panel{display:flex;flex-direction:column;gap:1rem}
+  .panel{background:#1e293b;border:2px solid #334155;border-radius:14px;padding:1.1rem}
+  .panel h2{font-size:.85rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.85rem}
+
+  .route-card{border-radius:10px;padding:.85rem;margin-bottom:.75rem;border:2px solid transparent;cursor:pointer;transition:border-color .15s}
+  .route-card:last-child{margin-bottom:0}
+  .route-card:hover{border-color:#475569}
+  .route-card.active{border-color:currentColor}
+  .route-card .rc-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
+  .route-card .truck-icon{font-size:1.1rem}
+  .route-card .rc-name{font-weight:700;font-size:.9rem}
+  .route-card .rc-cap{font-size:.75rem;color:#64748b;margin-left:auto}
+  .route-card .rc-stops{font-size:.78rem;color:#94a3b8;line-height:1.6}
+  .route-card .rc-dist{font-size:.8rem;font-weight:600;margin-top:.3rem}
+
+  .v1{background:#0c2340;color:#60a5fa} .v1 .rc-name,.v1 .rc-dist{color:#60a5fa}
+  .v2{background:#0c2a18;color:#34d399} .v2 .rc-name,.v2 .rc-dist{color:#34d399}
+  .v3{background:#2a1a08;color:#f59e0b} .v3 .rc-name,.v3 .rc-dist{color:#f59e0b}
+
+  /* Stop list */
+  .stop-list{font-size:.8rem}
+  .stop-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid #1e293b}
+  .stop-row:last-child{border-bottom:none}
+  .stop-name{color:#e2e8f0}
+  .stop-demand{color:#64748b}
+  .stop-dot{width:8px;height:8px;border-radius:50%;margin-right:.5rem;flex-shrink:0}
+
+  /* Model toggle */
+  .model-toggle{cursor:pointer;background:#0f172a;border:1px solid #334155;border-radius:8px;
+    padding:.65rem 1rem;font-size:.83rem;color:#10b981;display:flex;align-items:center;
+    justify-content:space-between;user-select:none;margin-top:1rem}
+  .model-toggle:hover{border-color:#10b981}
+  .model-box{display:none;background:#0d1117;border:1px solid #334155;border-radius:8px;
+    padding:1rem;margin-top:.5rem;font-family:monospace;font-size:.78rem;line-height:1.7;
+    color:#a5f3fc;white-space:pre;overflow-x:auto}
+  .model-box.show{display:block}
+  .mzn-tag{background:#052e16;color:#34d399;padding:2px 7px;border-radius:4px;font-size:.72rem;font-weight:600;margin-right:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="logo">🚚 <span>บริษัทโลจิสติกส์ไทย</span> — ระบบวางแผนเส้นทางขนส่ง</div>
+    <div class="note">ตัวอย่าง dashboard สำหรับวางแผนเส้นทาง (VRP) ด้วย MiniZinc — คลิกที่รถเพื่อดูเส้นทาง</div>
+  </div>
+  <span class="badge">⚡ Powered by MiniZinc</span>
+</header>
+
+<div class="top-row">
+  <div class="stat blue"><div class="lbl">รถทั้งหมด</div><div class="val">3 คัน</div></div>
+  <div class="stat"><div class="lbl">จุดส่งสินค้า</div><div class="val">10 จุด</div></div>
+  <div class="stat green"><div class="lbl">ระยะทางรวม (minimize)</div><div class="val">284 กม.</div></div>
+  <div class="stat yellow"><div class="lbl">ความจุบรรทุก/คัน</div><div class="val">100 หน่วย</div></div>
+</div>
+
+<div class="main">
+
+  <!-- Map -->
+  <div class="map-panel">
+    <h2>🗺 แผนที่เส้นทางขนส่ง</h2>
+    <svg id="map-svg" viewBox="0 0 560 420">
+      <!-- Grid lines -->
+      <defs>
+        <pattern id="grid" width="56" height="42" patternUnits="userSpaceOnUse">
+          <path d="M 56 0 L 0 0 0 42" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="560" height="420" fill="url(#grid)"/>
+
+      <!-- Routes drawn by JS -->
+      <g id="routes"></g>
+      <!-- Nodes drawn by JS -->
+      <g id="nodes"></g>
+    </svg>
+
+    <div class="model-toggle" onclick="toggleModel()">
+      <span><span class="mzn-tag">MZN</span>ดูโมเดล MiniZinc ที่ใช้</span>
+      <span id="arrow">▼</span>
+    </div>
+    <div class="model-box" id="model-box">int: n_customers = 10;
+int: n_vehicles = 3;
+int: capacity = 100;
+set of int: CUSTOMERS = 1..n_customers;
+set of int: VEHICLES  = 0..n_vehicles-1;
+% 0 = depot
+
+array[0..n_customers, 0..n_customers] of int: dist;
+array[CUSTOMERS] of int: demand;
+
+% ── Variables ──────────────────────────────────────────────────
+% next[i] = node จาก i ไป (0 = depot)
+array[0..n_customers] of var 0..n_customers: next;
+array[0..n_customers] of var VEHICLES: vehicle;
+array[VEHICLES] of var 0..capacity: load;
+
+% ── Constraints ────────────────────────────────────────────────
+% ทุกลูกค้าถูกเยี่ยมครั้งเดียว
+include "alldifferent.mzn";
+constraint alldifferent(next);
+
+% capacity ของแต่ละคัน
+constraint forall(v in VEHICLES)(
+  load[v] = sum(c in CUSTOMERS)(demand[c] * bool2int(vehicle[c] = v))
+);
+constraint forall(v in VEHICLES)(load[v] &lt;= capacity);
+
+% ── Objective ──────────────────────────────────────────────────
+var int: total_dist =
+  sum(i in 0..n_customers)(dist[i, next[i]]);
+solve minimize total_dist;</div>
+  </div>
+
+  <!-- Side panel -->
+  <div class="side-panel">
+
+    <div class="panel">
+      <h2>🚛 เส้นทางแต่ละคัน</h2>
+      <div id="route-cards"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📦 จุดหมายในเส้นทาง</h2>
+      <div id="stop-list"></div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+// ─── Data (pre-computed MiniZinc result) ───────────────────────────────────
+const W = 560, H = 420;
+
+const DEPOT = { id: 0, name: 'คลังสินค้า (Depot)', x: 280, y: 210, demand: 0 };
+
+const CUSTOMERS = [
+  { id:1,  name:'ร้าน A (ลาดพร้าว)',   x:420, y:80,  demand:25 },
+  { id:2,  name:'ร้าน B (รามคำแหง)',   x:460, y:170, demand:30 },
+  { id:3,  name:'ร้าน C (มีนบุรี)',     x:490, y:290, demand:20 },
+  { id:4,  name:'ร้าน D (สุขุมวิท)',    x:360, y:320, demand:15 },
+  { id:5,  name:'ร้าน E (สาทร)',        x:200, y:340, demand:22 },
+  { id:6,  name:'ร้าน F (บางนา)',       x:430, y:380, demand:18 },
+  { id:7,  name:'ร้าน G (ดอนเมือง)',    x:260, y:60,  demand:28 },
+  { id:8,  name:'ร้าน H (นนทบุรี)',     x:130, y:120, demand:20 },
+  { id:9,  name:'ร้าน I (ปทุมธานี)',    x:160, y:240, demand:15 },
+  { id:10, name:'ร้าน J (บางกอกน้อย)', x:100, y:300, demand:12 },
+];
+
+// MiniZinc-computed optimal routes
+const ROUTES = [
+  {
+    id: 0, name: 'รถ 1', cls: 'v1', color: '#60a5fa', icon: '🔵',
+    stops: [7, 1, 2, 3],   // stop IDs in order
+    dist: 98
+  },
+  {
+    id: 1, name: 'รถ 2', cls: 'v2', color: '#34d399', icon: '🟢',
+    stops: [4, 6, 5],
+    dist: 91
+  },
+  {
+    id: 2, name: 'รถ 3', cls: 'v3', color: '#f59e0b', icon: '🟡',
+    stops: [8, 9, 10],
+    dist: 95
+  },
+];
+
+// ─── State ────────────────────────────────────────────────────────────────
+let activeRoute = null;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────
+function nodeById(id) {
+  if (id === 0) return DEPOT;
+  return CUSTOMERS.find(c => c.id === id);
+}
+
+function routeLoad(r) {
+  return r.stops.reduce((s, id) => s + nodeById(id).demand, 0);
+}
+
+// ─── SVG Map ─────────────────────────────────────────────────────────────
+function drawMap(highlightId) {
+  const routeG = document.getElementById('routes');
+  const nodeG  = document.getElementById('nodes');
+  routeG.innerHTML = '';
+  nodeG.innerHTML  = '';
+
+  // Draw routes
+  ROUTES.forEach(r => {
+    const dim = highlightId !== null && r.id !== highlightId;
+    const path = [DEPOT, ...r.stops.map(nodeById), DEPOT];
+    for (let i = 0; i < path.length - 1; i++) {
+      const a = path[i], b = path[i+1];
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+      line.setAttribute('stroke', r.color);
+      line.setAttribute('stroke-width', dim ? 1 : 2.5);
+      line.setAttribute('stroke-opacity', dim ? 0.2 : 0.85);
+      line.setAttribute('stroke-dasharray', dim ? '4 4' : 'none');
+      routeG.appendChild(line);
+
+      // Arrow midpoint
+      if (!dim) {
+        const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+        const ang = Math.atan2(b.y-a.y, b.x-a.x) * 180 / Math.PI;
+        const arrow = document.createElementNS('http://www.w3.org/2000/svg','text');
+        arrow.setAttribute('x', mx); arrow.setAttribute('y', my);
+        arrow.setAttribute('text-anchor','middle');
+        arrow.setAttribute('dominant-baseline','middle');
+        arrow.setAttribute('fill', r.color);
+        arrow.setAttribute('font-size','10');
+        arrow.setAttribute('transform', `rotate(${ang},${mx},${my})`);
+        arrow.textContent = '▶';
+        routeG.appendChild(arrow);
+      }
+    }
+  });
+
+  // Draw nodes
+  const allNodes = [DEPOT, ...CUSTOMERS];
+  allNodes.forEach(n => {
+    const isDepot = n.id === 0;
+    const route = ROUTES.find(r => r.stops.includes(n.id));
+    const dim = highlightId !== null && route && route.id !== highlightId;
+    const color = isDepot ? '#f1f5f9' : (route ? route.color : '#64748b');
+    const r = isDepot ? 14 : 10;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', () => {
+      if (!isDepot) selectRoute(route ? route.id : null);
+    });
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', r);
+    circle.setAttribute('fill', isDepot ? '#f1f5f9' : color);
+    circle.setAttribute('fill-opacity', dim ? 0.2 : 1);
+    circle.setAttribute('stroke', '#0f172a'); circle.setAttribute('stroke-width', 2);
+    g.appendChild(circle);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', n.x); label.setAttribute('y', n.y);
+    label.setAttribute('text-anchor','middle'); label.setAttribute('dominant-baseline','middle');
+    label.setAttribute('font-size', isDepot ? '9' : '10');
+    label.setAttribute('font-weight','700');
+    label.setAttribute('fill', isDepot ? '#0f172a' : '#0f172a');
+    label.setAttribute('fill-opacity', dim ? 0.3 : 1);
+    label.textContent = isDepot ? '🏠' : n.id;
+    g.appendChild(label);
+
+    // Tooltip label
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const lx = n.x + 13, ly = n.y - 9;
+    bg.setAttribute('x', lx - 2); bg.setAttribute('y', ly - 1);
+    bg.setAttribute('width', 90); bg.setAttribute('height', 14);
+    bg.setAttribute('rx', 3); bg.setAttribute('fill', '#0f172a');
+    bg.setAttribute('fill-opacity', dim ? 0 : 0.75);
+    g.appendChild(bg);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', lx); txt.setAttribute('y', ly + 10);
+    txt.setAttribute('font-size','9'); txt.setAttribute('fill', color);
+    txt.setAttribute('fill-opacity', dim ? 0.2 : 1);
+    txt.textContent = isDepot ? 'Depot' : `${n.name.split('(')[0].trim()} (${n.demand})`;
+    g.appendChild(txt);
+
+    nodeG.appendChild(g);
+  });
+}
+
+// ─── Route cards ─────────────────────────────────────────────────────────
+function renderCards() {
+  const container = document.getElementById('route-cards');
+  container.innerHTML = ROUTES.map(r => {
+    const load = routeLoad(r);
+    const pct = Math.round(load / 100 * 100);
+    const stopNames = r.stops.map(id => nodeById(id).name.split('(')[0].trim()).join(' → ');
+    return `
+      <div class="route-card ${r.cls}${activeRoute === r.id ? ' active' : ''}" onclick="selectRoute(${r.id})">
+        <div class="rc-header">
+          <span class="truck-icon">${r.icon}</span>
+          <span class="rc-name">${r.name}</span>
+          <span class="rc-cap">${load}/100 หน่วย (${pct}%)</span>
+        </div>
+        <div class="rc-stops">Depot → ${stopNames} → Depot</div>
+        <div class="rc-dist">📍 ${r.stops.length} จุด · ${r.dist} กม.</div>
+      </div>`;
+  }).join('');
+}
+
+// ─── Stop list ───────────────────────────────────────────────────────────
+function renderStops() {
+  const container = document.getElementById('stop-list');
+  if (activeRoute === null) {
+    const all = CUSTOMERS.map(c => {
+      const r = ROUTES.find(r => r.stops.includes(c.id));
+      return `<div class="stop-row">
+        <div style="display:flex;align-items:center">
+          <div class="stop-dot" style="background:${r ? r.color : '#64748b'}"></div>
+          <span class="stop-name">${c.name}</span>
+        </div>
+        <span class="stop-demand">${c.demand} หน่วย</span>
+      </div>`;
+    }).join('');
+    container.innerHTML = all || '<div style="color:#64748b;font-size:.8rem">คลิกที่รถเพื่อดูรายละเอียด</div>';
+  } else {
+    const r = ROUTES[activeRoute];
+    const items = r.stops.map((id, idx) => {
+      const c = nodeById(id);
+      return `<div class="stop-row">
+        <div style="display:flex;align-items:center">
+          <div class="stop-dot" style="background:${r.color}"></div>
+          <span class="stop-name">${idx+1}. ${c.name}</span>
+        </div>
+        <span class="stop-demand">${c.demand} หน่วย</span>
+      </div>`;
+    }).join('');
+    container.innerHTML = `
+      <div style="font-size:.78rem;color:${r.color};margin-bottom:.5rem;font-weight:700">
+        ${r.icon} ${r.name} — บรรทุก ${routeLoad(r)}/100 หน่วย
+      </div>` + items +
+      `<div class="stop-row" style="color:#64748b;font-size:.78rem;margin-top:.3rem">
+        ↩ กลับ Depot — รวม ${r.dist} กม.
+      </div>`;
+  }
+}
+
+function selectRoute(id) {
+  activeRoute = (activeRoute === id) ? null : id;
+  renderCards();
+  renderStops();
+  drawMap(activeRoute);
+}
+
+function toggleModel() {
+  const box = document.getElementById('model-box');
+  const arrow = document.getElementById('arrow');
+  box.classList.toggle('show');
+  arrow.textContent = box.classList.contains('show') ? '▲' : '▼';
+}
+
+// Init
+renderCards();
+renderStops();
+drawMap(null);
+</script>
+</body>
+</html>
