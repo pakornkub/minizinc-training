@@ -3,18 +3,24 @@
 %% ===================================================
 %%
 %% โจทย์: 4 ออร์เดอร์ (A-D), แต่ละออร์เดอร์มี 3 ขั้นตอน
-%%   แต่ละขั้นตอนทำได้บนเครื่องจักร 2-3 แบบ
+%%   แต่ละขั้นตอนทำได้บนเครื่องจักรที่รองรับเท่านั้น
 %%   เครื่องแต่ละแบบมีความเร็วต่างกัน
 %%   Minimize makespan
+%%
+%% Machine Capability (กำหนดที่ระดับ task type):
+%%   MA (เครื่องเลเซอร์) : ตัด ✓ | เชื่อม ✗ | ขัดผิว ✓
+%%   MB (หุ่นเชื่อม)     : ตัด ✗ | เชื่อม ✓ | ขัดผิว ✗
+%%   MC (เครื่องอเนกประสงค์): ตัด ✓ | เชื่อม ✓ | ขัดผิว ✓ (แต่ช้ากว่า)
 %%
 %% รันด้วย: minizinc workshop4a_starter.mzn workshop4a_data.dzn
 %%
 %% ขั้นตอน:
-%%   1) เพิ่ม constraint: dur[j,t,machine[j,t]] > 0 (เลือกเฉพาะที่ทำได้)
+%%   1) เพิ่ม constraint: เลือกเฉพาะเครื่องที่ capable[t, machine[j,t]] = true
 %%   2) เพิ่ม Precedence constraint
-%%   3) เพิ่ม No-overlap constraint (2 task เครื่องเดียวกันห้าม overlap)
+%%   3) เพิ่ม No-overlap: ทุกคู่ (j1,t1)≠(j2,t2) บนเครื่องเดียวกันห้าม overlap
+%%      ✅ ใช้ where j1<j2 \/ (j1=j2 /\ t1<t2) ครอบคลุมทุกกรณี
 %%   4) solve minimize makespan
-%%   5) ท้าทาย: ลอง disjunctive แทน pairwise no_overlap
+%%   5) ท้าทาย: เพิ่มเงื่อนไข — ออร์เดอร์ D ต้องเริ่ม Cutting ไม่ก่อนนาทีที่ 5
 
 include "disjunctive.mzn";
 
@@ -23,20 +29,29 @@ enum TASK;
 enum MACHINE;
 TASK: t_last = max(TASK);
 
-array[JOB, TASK, MACHINE] of int: dur;
-int: total = sum(j in JOB, t in TASK)(max(m in MACHINE)(dur[j,t,m]));
+%% Machine capability: capable[t, m] = true → เครื่อง m รองรับ task ประเภท t
+array[TASK, MACHINE] of bool: capable;
+
+%% เวลาที่ใช้ (นาที) — ใช้เฉพาะเมื่อ capable[t,m] = true
+array[TASK, MACHINE] of int: proc_time;
+
+int: total = sum(t in TASK)(
+  max(m in MACHINE where capable[t, m])(proc_time[t, m])
+) * card(JOB);
 
 array[JOB, TASK] of var MACHINE: machine;
 array[JOB, TASK] of var 0..total: start;
 var 0..total: makespan;
 
-%% TODO 1: เลือกเฉพาะเครื่องที่ทำ task นั้นได้
-% constraint ...
+%% TODO 1: เลือกเฉพาะเครื่องที่รองรับ task นั้น
+% constraint forall(j in JOB, t in TASK)( ... );
 
-%% TODO 2: Precedence (task ตามลำดับใน job เดียวกัน)
-% constraint ...
+%% TODO 2: Precedence — task ในแต่ละ job ต้องทำตามลำดับ
+% constraint forall(j in JOB)( ... );
 
-%% TODO 3: No-overlap (สองงานที่ใช้เครื่องเดียวกันห้าม overlap)
+%% TODO 3: No-overlap — ทุกคู่ (j1,t1) และ (j2,t2) บนเครื่องเดียวกันห้าม overlap
+%%   hint: forall(j1 in JOB, t1 in TASK, j2 in JOB, t2 in TASK
+%%           where j1 < j2 \/ (j1 = j2 /\ t1 < t2))( ... )
 % constraint ...
 
 %% TODO 4: solve minimize makespan
@@ -45,5 +60,5 @@ solve satisfy;
 output ["Makespan = ", show(makespan), "\n"] ++
 [ show(j) ++ "/" ++ show(t) ++ ": " ++ show(machine[j,t]) ++
   " [" ++ show(start[j,t]) ++ "-" ++
-  show(start[j,t] + dur[j,t,machine[j,t]]) ++ "]\n"
+  show(start[j,t] + proc_time[t, machine[j,t]]) ++ "]\n"
   | j in JOB, t in TASK ];
