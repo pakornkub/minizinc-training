@@ -1,21 +1,38 @@
-%% Data: Flexible Job Shop — 3 jobs, 2 tasks, 3 machines
-%% 0 = เครื่องนั้นทำ task นี้ไม่ได้
-JOB     = J(1..3);
-TASK    = T(1..2);
-MACHINE = { M1, M2, M3 };
+%% Data: Flexible Job Shop — โรงงานโลหะ
+%% 3 orders, 2 ขั้นตอน, 3 เครื่องจักร
+%%
+%% Jobs:     OrderA, OrderB, OrderC
+%% Tasks:    Cutting (ขั้นที่ 1), Assembly (ขั้นที่ 2)
+%% Machines: LaserCutter, CNCMachine, AssemblyStation
+%%
+%% Capability:
+%%   LaserCutter    → ทำ Cutting ได้ (เร็ว), Assembly ไม่ได้
+%%   CNCMachine     → ทำ Cutting ได้ (ช้ากว่า), Assembly ได้ (ช้า) — อเนกประสงค์
+%%   AssemblyStation→ Cutting ไม่ได้, Assembly ได้ (เร็ว)
+%%
+%% รันด้วย: minizinc 02_flexible_jobshop.mzn 02_flexible_data.dzn
 
-%% dur[job, task, machine]
-dur = array3d(JOB, TASK, MACHINE, [
-  %% Job1 Task1: M1=10, M2=8,  M3=0 (ทำไม่ได้)
-  10, 8, 0,
-  %% Job1 Task2: M1=0,  M2=12, M3=7
-   0,12, 7,
-  %% Job2 Task1: M1=6,  M2=0,  M3=9
-   6, 0, 9,
-  %% Job2 Task2: M1=14, M2=10, M3=0
-  14,10, 0,
-  %% Job3 Task1: M1=8,  M2=11, M3=5
-   8,11, 5,
-  %% Job3 Task2: M1=0,  M2=6,  M3=9
-   0, 6, 9
+JOB     = { OrderA, OrderB, OrderC };
+TASK    = { Cutting, Assembly };
+MACHINE = { LaserCutter, CNCMachine, AssemblyStation };
+
+%% capable[task_type, machine] — true = เครื่องนี้รองรับงานประเภทนี้
+%%                  Laser   CNC    Asm
+capable = array2d(TASK, MACHINE, [
+  true,  true,  false,   %% Cutting:  Laser✓  CNC✓  Assembly✗
+  false, true,  true     %% Assembly: Laser✗  CNC✓  Assembly✓
 ]);
+
+%% proc_time[task_type, machine] (นาที) — ใช้เฉพาะเมื่อ capable = true
+%%                    Laser  CNC   Asm
+proc_time = array2d(TASK, MACHINE, [
+   5,    8,    0,    %% Cutting:  Laser=5นาที  CNC=8นาที  (Asm ทำไม่ได้ ใส่ 0)
+   0,   10,    6     %% Assembly: (Laser ทำไม่ได้ ใส่ 0)  CNC=10นาที  Asm=6นาที
+]);
+
+%% ความหมาย:
+%%   ขั้นตอน Cutting:  เลือก LaserCutter (5 นาที) หรือ CNCMachine (8 นาที)
+%%   ขั้นตอน Assembly: เลือก CNCMachine (10 นาที) หรือ AssemblyStation (6 นาที)
+%%
+%%   CNCMachine เป็นคอขวด — ถ้าทุก order แย่ง CNC ทั้ง Cutting และ Assembly
+%%   จะช้ากว่าการกระจายงานไปยัง Laser และ AssemblyStation
