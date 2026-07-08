@@ -4,7 +4,7 @@
 %% regular(sequence, transition_table, start_state, accepting_states)
 %%
 %% กฎที่ต้องการ:
-%%   - ห้ามทำกะดึก 3 คืนติดต่อกัน
+%%   - ห้ามทำกะดึก 2 คืนติดต่อกัน
 %%   - ในทุก 4 วัน ต้องมีวันหยุดอย่างน้อย 1 วัน
 %%   (เหมือนตัวอย่าง nurse rostering ใน tutorial)
 
@@ -16,34 +16,35 @@ int: req_day;
 int: req_night;
 int: min_night;
 
-enum SHIFT = { d, n, o };  % d=day, n=night, o=off
+enum SHIFT = { D, N, O };  % d=day, n=night, o=off
 
 %% DFA สำหรับ pattern ที่ถูกต้อง
 %% States: S1=start, S2=หลัง d, S3=หลัง n1, S4=หลัง d/n (มี 2 ต่อเนื่อง),
 %%         S5=หลัง n2, S6=หลัง d/n ต่อเนื่อง 3 วัน
-enum STATE = { S1, S2, S3, S4, S5, S6 };
+enum STATE = { S0, S1, S2, S3, S4, S5, S6 };
 
 array[STATE, SHIFT] of opt STATE: t =
-  [|      d:  n:  o:
-   | S1:  S2, S3, S1
-   | S2:  S4, S4, S1
-   | S3:  S4, S5, S1
-   | S4:  S6, S6, S1
-   | S5:  S6, <>, S1   % ห้ามทำดึก 3 คืนติด (<> = illegal)
-   | S6:  <>, <>, S1 |]; % ต้องหยุดหลัง 3 วันติด
+  [|      D:  N:  O:
+   | S0:  S1, S4, S0
+   | S1:  S2, S5, S0
+   | S2:  S3, S6, S0
+   | S3:  <>, <>, S0
+   | S4:  S2, <>, S0
+   | S5:  S3, <>, S0 
+   | S6:  <>, <>, S0 |]; % ต้องหยุดหลัง 3 วันติด
 
 array[NURSE, DAY] of var SHIFT: roster;
 
 %% Demand per day
 constraint forall(day in DAY)(
-  sum(n in NURSE)(roster[n,day] = d) = req_day /\
-  sum(n in NURSE)(roster[n,day] = n) = req_night
+  sum(n in NURSE)(bool2int(roster[n,day] = D)) >= req_day /\
+  sum(n in NURSE)(bool2int(roster[n,day] = N)) >= req_night
 );
 
 %% Pattern ต้องตาม DFA
 constraint forall(nurse in NURSE)(
-  regular([roster[nurse,day] | day in DAY], t, S1, STATE) /\
-  sum(day in DAY)(roster[nurse,day] = n) >= min_night
+  regular([roster[nurse,day] | day in DAY], t, S0, STATE) /\
+  sum(day in DAY)(roster[nurse,day] = N) >= min_night
 );
 
 solve satisfy;
