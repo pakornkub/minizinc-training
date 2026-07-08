@@ -1,6 +1,11 @@
 # Solution files (kept locally, not published)
 *_solution.mzn
 !day1/*_solution.mzn
+!day2/*_solution.mzn
+
+# Separate repositories (deployed independently)
+grader-app/
+quiz-app/
 
 # macOS
 .DS_Store
