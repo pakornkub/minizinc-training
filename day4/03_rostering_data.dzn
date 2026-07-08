@@ -1,5 +1,5 @@
 %% Data: 6 พนักงาน, 7 วัน
-EMPLOYEE = Emp(1..6);
+EMPLOYEE = Emp(1..7);
 DAY      = D(1..7);
 
 req_morning = [3, 3, 3, 3, 3, 2, 2];
