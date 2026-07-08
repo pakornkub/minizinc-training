@@ -10,7 +10,8 @@ enum TASKS   = { TaskA, TaskB, TaskC, TaskD };
 
 % เวลาที่แต่ละคนใช้ทำแต่ละงาน (ชั่วโมง)
 array[WORKERS, TASKS] of int: duration =
-  [| Alice: 2, 8, 5, 3
+  [| TaskA: TaskB: TaskC: TaskD:
+   | Alice: 2, 8, 5, 3
    | Bob:   6, 3, 4, 7
    | Carol: 4, 6, 2, 5
    | Dave:  8, 2, 7, 4 |];
