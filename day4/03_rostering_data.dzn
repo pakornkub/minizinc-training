@@ -2,7 +2,7 @@
 EMPLOYEE = Emp(1..7);
 DAY      = D(1..7);
 
-req_morning = [3, 3, 3, 3, 3, 2, 2];
-req_evening = [2, 2, 2, 2, 2, 2, 2];
-req_night   = [1, 1, 1, 1, 1, 1, 1];
-max_night_per_period = 3;
+req_morning = [2, 3, 3, 1, 3, 2, 2];
+req_evening = [2, 1, 2, 1, 1, 2, 1];
+req_night   = [1, 1, 0, 1, 0, 0, 0];
+max_night_per_period = 2;

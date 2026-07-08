@@ -37,12 +37,12 @@ constraint forall(e in EMPLOYEE, d in DAY where d < max(DAY))(
   roster[e,d] = night -> roster[e, enum_next(DAY,d)] = off
 );
 
-%% Objective: minimize กะดึกรวม (เพื่อความเป็นธรรม)
-var int: total_nights = sum(e in EMPLOYEE, d in DAY)(
-  bool2int(roster[e,d] = night)
+%% Objective: minimize กะดึกของทุกคน (เพื่อความเป็นธรรม)
+var int: night_bound = max(e in EMPLOYEE)(sum(d in DAY)(
+  bool2int(roster[e,d] = night))
 );
 
-solve minimize total_nights;
+solve minimize night_bound;
 
 output [
   "=== ตารางกะ ===\n",
@@ -56,4 +56,4 @@ output [
            else "- " endif
            | d in DAY ]) ++ "\n"
   | e in EMPLOYEE ] ++
-["กะดึกรวม: ", show(total_nights), "\n"];
+["กะดึกมากที่สุด: ", show(night_bound), "\n"];
