@@ -1,0 +1,62 @@
+%% ===================================================
+%% Data: Flexible Job Shop — โรงงานผลิตชิ้นส่วน
+%% 05_flexible_3d.dzn
+%% ===================================================
+%%
+%% 3 ออร์เดอร์ (เล็ก/กลาง/ใหญ่), 3 ขั้นตอน, 3 เครื่องจักร
+%%
+%% เครื่องจักร:
+%%   Drill = เครื่องเจาะ     : Setup ✓ | Process ✓ | Inspect ✗
+%%   Mill  = เครื่องกัด      : Setup ✗ | Process ✓ | Inspect ✓
+%%   Multi = เครื่องอเนกฯ   : Setup ✓ | Process ✓ | Inspect ✓  (ช้าที่สุด)
+%%
+%% duration ขึ้นกับขนาด job ด้วย — งานใหญ่ใช้เวลานานกว่า
+%% บนเครื่องเดียวกัน task เดียวกัน
+%%
+%% รันด้วย: minizinc 05_flexible_jobshop_3d.mzn 05_flexible_3d.dzn
+
+JOB     = { SmallOrder, MedOrder, LargeOrder };
+TASK    = { Setup, Process, Inspect };
+MACHINE = { Drill, Mill, Multi };
+
+%%
+%% dur[JOB, TASK, MACHINE]: 0 = เครื่องรองรับไม่ได้
+%%
+%%                                 Drill  Mill  Multi
+%% SmallOrder / Setup:                4     0     6
+%% SmallOrder / Process:              8     7    10
+%% SmallOrder / Inspect:              0     5     7
+%%
+%% MedOrder   / Setup:                6     0     9
+%% MedOrder   / Process:             12    10    15
+%% MedOrder   / Inspect:              0     8    11
+%%
+%% LargeOrder / Setup:                8     0    12
+%% LargeOrder / Process:             15    13    18
+%% LargeOrder / Inspect:              0    10    14
+%%
+dur = array3d(JOB, TASK, MACHINE, [
+%%  Drill  Mill  Multi
+    4,     0,    6,    %% SmallOrder / Setup
+    8,     7,   10,    %% SmallOrder / Process
+    0,     5,    7,    %% SmallOrder / Inspect
+
+    6,     0,    9,    %% MedOrder / Setup
+   12,    10,   15,    %% MedOrder / Process
+    0,     8,   11,    %% MedOrder / Inspect
+
+    8,     0,   12,    %% LargeOrder / Setup
+   15,    13,   18,    %% LargeOrder / Process
+    0,    10,   14     %% LargeOrder / Inspect
+]);
+
+%%
+%% หมายเหตุ:
+%%   Drill รองรับ Setup และ Process เท่านั้น — ทำ Inspect ไม่ได้
+%%   Mill  รองรับ Process และ Inspect เท่านั้น — ทำ Setup ไม่ได้
+%%   Multi ทำได้ทุก task แต่ช้ากว่าเครื่องเฉพาะทางเสมอ
+%%
+%%   Process ของ LargeOrder เป็น bottleneck:
+%%     Drill = 15 นาที | Mill = 13 นาที | Multi = 18 นาที
+%%   → ควรใช้ Mill สำหรับ Process ของ LargeOrder (เร็วสุด)
+%%   แต่ Mill ยังต้องรับ Inspect ของทุก order ด้วย — ต้องจัดสมดุล
