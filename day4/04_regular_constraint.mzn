@@ -41,11 +41,28 @@ constraint forall(day in DAY)(
   sum(n in NURSE)(bool2int(roster[n,day] = N)) >= req_night
 );
 
-%% Pattern ต้องตาม DFA
+%% Pattern ต้องตาม DFA (deterministic finite automata)
 constraint forall(nurse in NURSE)(
   regular([roster[nurse,day] | day in DAY], t, S0, STATE) /\
-  sum(day in DAY)(roster[nurse,day] = N) >= min_night
+  sum(day in DAY)(bool2int(roster[nurse,day] = N)) >= min_night
 );
+
+%% ถ้าไม่ใช่ regular constraint
+%%   - ห้ามทำกะดึก 2 คืนติดต่อกัน (ถ้าวันนี้ทำกะดึก พรุ่งนี้ห้ามทำกะดึก
+% constraint forall(n in NURSE)(
+%   forall(d in DAY where d < max(DAY))(
+%     roster[n, d] = N -> roster[n, enum_next(DAY, d)] != N
+%   )
+% );
+
+%%   - ในทุก 4 วัน ต้องมีวันหยุดอย่างน้อย 1 วัน
+% constraint forall(n in NURSE)(
+%   forall(i in 1..card(DAY)-3)(
+%     exists(k in 0..3)(
+%       roster[n, to_enum(DAY, i+k)] = O
+%     )
+%   )
+% );
 
 solve satisfy;
 
