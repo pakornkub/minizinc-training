@@ -38,13 +38,13 @@ constraint circuit(next);
 
 %% TODO 2: Capacity — load ต่อ customer
 constraint forall(i in CUST)(
-  load[i] = demand[i] + (if next[i] in DEPOT then 0 else load[next[i]])
+  load[i] = demand[i] + (if next[i] in DEPOT then 0 else load[next[i]] endif)
 );
-constraint forall(i in DEPOT)(load[i] = 0);
+
 constraint forall(i in CUST)(load[i] <= capacity);
 
 %% TODO 3: solve minimize ระยะทางรวม
-solve satisfy;
+solve minimize sum(i in ALL)(dist[i, next[i]]);
 
 output [
   "=== VRP Solution ===\n",

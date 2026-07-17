@@ -1,4 +1,4 @@
 %% Data: Bin Packing — 8 ชิ้น, กล่องความจุ 30 กก.
 n_items      = 8;
-bin_capacity = 30;
+bin_capacity = [30, 30, 30, 30, 30, 30, 30, 30];
 item_size    = [12, 8, 15, 6, 10, 18, 5, 9];

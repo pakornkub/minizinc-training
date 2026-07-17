@@ -8,7 +8,7 @@
 include "bin_packing_capa.mzn";
 
 int: n_items;
-int: bin_capacity;
+array[1..n_items] of int: bin_capacity;
 array[1..n_items] of int: item_size;
 
 % Upper bound จำนวนกล่องที่ต้องใช้ (worst case = 1 ชิ้น/กล่อง)

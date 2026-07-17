@@ -4,14 +4,14 @@
 %% 0/1 Knapsack: เลือกหรือไม่เลือกแต่ละชิ้น (0 หรือ 1)
 %% ทั้ง 2 แบบ: boolean array และ set variable
 
-int: n = 6;
+int: n = 10;
 set of int: ITEMS = 1..n;
 
-array[ITEMS] of int: profit = [500, 800, 300, 700, 600, 400];  % กำไร
-array[ITEMS] of int: cost   = [200, 350, 150, 280, 220, 180];  % ต้นทุน
-array[ITEMS] of int: risk   = [  2,   4,   1,   3,   2,   1];  % ความเสี่ยง 1-5
+array[ITEMS] of int: profit = [500, 800, 300, 700, 600, 400, 600, 450, 355, 700];  % กำไร
+array[ITEMS] of int: cost   = [200, 350, 150, 280, 220, 180, 120, 200, 230, 140];  % ต้นทุน
+array[ITEMS] of int: risk   = [  2,   4,   1,   3,   2,   1,   1,   3,   2,   1];  % ความเสี่ยง 1-5
 
-int: budget   = 700;   % งบประมาณ
+int: budget   = 1000;   % งบประมาณ
 int: max_risk = 8;     % ความเสี่ยงรวมสูงสุด
 
 %% ── วิธีที่ 1: Boolean array ──────────────────────────
@@ -23,10 +23,10 @@ constraint sum(i in ITEMS)(risk[i]   * selected[i]) <= max_risk;
 solve maximize sum(i in ITEMS)(profit[i] * selected[i]);
 
 %% ── วิธีที่ 2: Set variable (แสดงใน output ด้วย) ──────
-%% var set of ITEMS: chosen;
-%% constraint sum(i in chosen)(cost[i])   <= budget;
-%% constraint sum(i in chosen)(risk[i])   <= max_risk;
-%% solve maximize sum(i in chosen)(profit[i]);
+% var set of ITEMS: chosen;
+% constraint sum(i in chosen)(cost[i])   <= budget;
+% constraint sum(i in chosen)(risk[i])   <= max_risk;
+% solve maximize sum(i in chosen)(profit[i]);
 
 output [
   "=== เลือกโปรเจกต์ ===\n",
