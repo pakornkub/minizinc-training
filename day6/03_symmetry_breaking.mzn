@@ -22,7 +22,7 @@
 %% รันด้วย: minizinc 03_symmetry_breaking.mzn
 %% ============================================================
 
-include "bin_packing.mzn";
+include "bin_packing_capa.mzn";
 
 int: n_items = 12;          % สินค้า 12 ชิ้น
 int: n_bins  = 6;           % กล่องสูงสุด 6 กล่อง (upper bound)
@@ -31,6 +31,7 @@ int: capacity = 100;        % ความจุกล่องละ 100 กก
 set of int: ITEMS = 1..n_items;
 set of int: BINS  = 1..n_bins;
 
+array[BINS] of int: bin_capacity = [100, 100, 100, 100, 100, 100];
 array[ITEMS] of int: weight = [28, 35, 12, 47, 22, 38, 15, 42, 19, 31, 25, 44];
 
 %% ── Decision Variables ──────────────────────────────────────
@@ -39,7 +40,7 @@ array[BINS]  of var 0..capacity: load; % น้ำหนักรวมในก
 var 1..n_bins: n_used;                 % จำนวนกล่องที่ใช้จริง
 
 %% ── Basic Constraints ───────────────────────────────────────
-constraint bin_packing(load, bin, weight);
+constraint bin_packing_capa(bin_capacity, bin, weight);
 
 constraint n_used = max(bin);
 

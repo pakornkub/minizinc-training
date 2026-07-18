@@ -88,7 +88,7 @@ output [
   concat([
     "  P" ++ show(p) ++ "\t\t" ++ show(hours_needed[m,p]) ++ "\t" ++
     show(regular[m,p]) ++ "\t" ++ show(overtime[m,p]) ++ "\t\t" ++
-    if overtime[m,p] > 0 then "OT " ++ show(overtime[m,p]) ++ "h"
+    if fix(overtime[m,p]) > 0 then "OT " ++ show(overtime[m,p]) ++ "h"
     else "ปกติ" endif ++ "\n"
     | p in PERIOD
   ])

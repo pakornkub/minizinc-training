@@ -104,7 +104,7 @@ output [
 ] ++
 [ show(j) ++ "\t" ++ show(t) ++ "\t" ++
   show(machine[j, t]) ++ "\t(" ++ show(orig_machine[j, t]) ++ ")\t\t" ++
-  if machine[j, t] != orig_machine[j, t] then "*** เปลี่ยน ***"
+  if fix(machine[j, t]) != orig_machine[j, t] then "*** เปลี่ยน ***"
   else "คงเดิม"
   endif ++ "\n"
   | j in JOB, t in TASK ];

@@ -18,10 +18,13 @@ array[1..n_jobs, 1..n_tasks] of int: d =
    | 4, 6, 7, 3 |];
 
 %% ❌ bound กว้างเกิน
-int: total_bad = 200;  % hardcode ค่าสูงโดยไม่คำนวณ
+%% int: total_bad = 200;  % hardcode ค่าสูงโดยไม่คำนวณ
+int: total = sum(j in 1..n_jobs, t in 1..n_tasks)(d[j, t]);
 
-array[1..n_jobs, 1..n_tasks] of var 0..total_bad: s;  % ❌
-var 0..total_bad: makespan;  % ❌
+int: lb = max(j in 1..n_jobs)(sum(t in 1..n_tasks)(d[j, t]));
+
+array[1..n_jobs, 1..n_tasks] of var 0..total: s;  % ❌
+var lb..total: makespan;  % ❌
 
 constraint forall(j in 1..n_jobs)(
   forall(t in 1..n_tasks-1)(s[j,t]+d[j,t] <= s[j,t+1]) /\

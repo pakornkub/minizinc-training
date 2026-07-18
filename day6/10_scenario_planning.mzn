@@ -108,7 +108,7 @@ output [
     ": demand=" ++ show(demand[p,s]) ++
     "  leftover=" ++ show(leftover[p,s]) ++
     "  unmet=" ++ show(unmet[p,s]) ++
-    (if unmet[p,s] > 0 then "  *** STOCKOUT ***" else "" endif) ++ "\n"
+    (if fix(unmet[p,s]) > 0 then "  *** STOCKOUT ***" else "" endif) ++ "\n"
     | p in PRODUCT
   ])
   | s in SCENARIO ] ++
